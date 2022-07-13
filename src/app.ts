@@ -10,7 +10,7 @@ const fastify = Fastify({
   logger: true
 });
 
-const app: FastifyPluginAsync<AppOptions> = async (
+const startApp: FastifyPluginAsync<AppOptions> = async (
     fastify,
     opts
 ): Promise<void> => {
@@ -40,7 +40,7 @@ const app: FastifyPluginAsync<AppOptions> = async (
 
 };
 
-app(fastify, {});
+startApp(fastify, {});
 
 
 
