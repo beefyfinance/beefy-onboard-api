@@ -8,7 +8,8 @@ export type AppOptions = {
 } & Partial<AutoloadPluginOptions>;
 
 const fastify = Fastify({
-  logger: true
+  logger: true,
+  trustProxy: true
 });
 
 const startApp: FastifyPluginAsync<AppOptions> = async (
