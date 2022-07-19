@@ -22,8 +22,6 @@ const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
   })
 
   fastify.get('/ip', async function (request, reply) {
-    console.log('ip ' + request.ip);
-    console.log(request.forwarded);
     return request.ip;
   })
 }
