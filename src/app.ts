@@ -1,6 +1,7 @@
 import { join } from 'path';
 import AutoLoad, {AutoloadPluginOptions} from '@fastify/autoload';
 import Fastify, { FastifyPluginAsync } from 'fastify';
+require('dotenv').config();
 
 export type AppOptions = {
   // Place your custom options for app below here.
