@@ -264,7 +264,9 @@ export const getTransakData = (countryCode: string) => {
                 }
                 return converted;
             });
-            if (supported.length === 0) return;
+            if (supported.length === 0) {
+                return delete transakDataForCountry[cryptoCurrency];
+            }
             if (!transakDataForCountry[cryptoCurrency].fiatCurrencies.hasOwnProperty(currency)) {
                 transakDataForCountry[cryptoCurrency].fiatCurrencies[currency] = supported;
             }
@@ -273,6 +275,12 @@ export const getTransakData = (countryCode: string) => {
             //     a: currencyData.
             // })
 
+        })
+
+        Object.keys(transakDataForCountry).forEach(currency => {
+            if (Object.keys(transakDataForCountry[currency].fiatCurrencies).length === 0) {
+                delete transakDataForCountry[currency];
+            }
         })
 
     })
