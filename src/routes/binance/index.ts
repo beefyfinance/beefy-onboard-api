@@ -52,7 +52,7 @@ const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
 
   fastify.get('/onboard', async function (request, reply) {
     // return await onboardStart(request.ip);
-    return await onboardStart("171.18.5.5");
+    return await onboardStart(request.ip);
   })
 
 }
