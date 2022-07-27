@@ -28,7 +28,7 @@ export const onboardStart = async (ipAddress: string) => {
     console.log(`> Check binance IP test: ${checkBinanceIp}`)
     
     if (checkBinanceIp) { //Binance supported, add provider data
-        // resp.providers.binance = getData();
+        resp.providers.binance = getData();
     }
 
     if (isCountryAllowed(countryCode)) { //Transak supported, add provider data

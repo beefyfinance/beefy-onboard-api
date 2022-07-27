@@ -109,16 +109,14 @@ interface FiatCurrencyPayment {
     paymentMethod: string,
     minLimit: number,
     maxLimit: number,
-    supportingCountries: string[]
+    supportingCountries?: string[]
 }
 
 interface CryptoDetail {
     fiatCurrencies: {
         [fiatCurrency: string]: FiatCurrencyPayment[]
     },
-    networks: {
-        [network: string]: {}
-    }
+    networks: string[]
 }
 
 interface CryptoDetailNetwork {
@@ -222,12 +220,13 @@ export const getTransakData = (countryCode: string) => {
 
 
     Object.keys(fiatPayments).forEach(currency => {
-        let supportedList = fiatPayments[currency].filter(payment => payment.supportingCountries.includes(countryCode));
+        let supportedList = fiatPayments[currency].filter(payment => payment.supportingCountries?.includes(countryCode));
         if (supportedList.length > 0) {
             supportedFiatInCountry[currency] = supportedList;
         }
     });
     let transakDataForCountry: ProviderOptions = {};
+
 
     Object.keys(cryptoData).forEach(cryptoCurrency => {
         const networks = cryptoData[cryptoCurrency].networks;
@@ -236,12 +235,11 @@ export const getTransakData = (countryCode: string) => {
 
         transakDataForCountry[cryptoCurrency] = {
             fiatCurrencies: {},
-            networks: {}
+            networks: []
         }
 
 
         Object.keys(cryptoData[cryptoCurrency].networks).forEach(network => {
-            transakDataForCountry[cryptoCurrency].networks[network] = [];
             networks[network].forEach(networkDetail => {
                 networkDetail.unsupportedPayments.forEach(notSupoprtedFiat => {
                     notSupported.push({
@@ -249,22 +247,36 @@ export const getTransakData = (countryCode: string) => {
                         paymentMethod: notSupoprtedFiat.paymentMethod
                     })
                 })
-                // transakDataForCountry[cryptoCurrency].networks[network].push()
+                transakDataForCountry[cryptoCurrency].networks.push(network)
             })
         })
+
 
 
         Object.keys(supportedFiatInCountry).forEach(currency => {
             let supported = supportedFiatInCountry[currency].filter(c => {
                 return !notSupported.some(notSup => c.paymentMethod === notSup.paymentMethod && currency === notSup.fiatCurrency);
-            })
+            }).map(payment => {
+                let converted: FiatCurrencyPayment = {
+                    minLimit: payment.minLimit,
+                    maxLimit: payment.maxLimit,
+                    paymentMethod: payment.paymentMethod
+                }
+                return converted;
+            });
             if (supported.length === 0) return;
-
+            if (!transakDataForCountry[cryptoCurrency].fiatCurrencies.hasOwnProperty(currency)) {
+                transakDataForCountry[cryptoCurrency].fiatCurrencies[currency] = supported;
+            }
+            // let currencyData = supportedFiatInCountry[currency];
+            // transakDataForCountry[cryptoCurrency].fiatCurrencies[currency].push({
+            //     a: currencyData.
+            // })
 
         })
 
     })
-    return supportedFiatInCountry;
+    return transakDataForCountry;
 }
 
 export const getCountryCurrency = (countryCode: string) => {

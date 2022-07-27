@@ -120,9 +120,7 @@ interface CryptoDetail {
     fiatCurrencies: {
         [fiatCurrency: string]: FiatCurrencyPayment[]
     },
-    networks: {
-        [network:string]: NetworkOffering[]
-    }
+    networks: string[]
 }
 interface ProviderOptions {
     [cryptoCurrency: string]: CryptoDetail
@@ -146,7 +144,7 @@ const fetchData = async () => {
         if (!providerOptions.hasOwnProperty(pair.cryptoCurrency)) {
             providerOptions[pair.cryptoCurrency] = {
                 fiatCurrencies: {},
-                networks: {}
+                networks: []
             }
         }
 
@@ -169,14 +167,15 @@ const fetchData = async () => {
             return console.log(`no crypto pair for network data for '${network.cryptoCurrency}'`);
         }
 
-        if (!providerOptions[network.cryptoCurrency].networks.hasOwnProperty(network.network)) {
-            providerOptions[network.cryptoCurrency].networks[network.network] = [];
-        }
+        // if (!providerOptions[network.cryptoCurrency].networks.hasOwnProperty(network.network)) {
+        //     providerOptions[network.cryptoCurrency].networks[network.network] = [];
+        // }
 
-        providerOptions[network.cryptoCurrency].networks[network.network].push({
+        providerOptions[network.cryptoCurrency].networks.push(network.network);
+        // providerOptions[network.cryptoCurrency].networks[network.network].push({
             // withdrawMax: network.withdrawMax,
             // withdrawMin: network.withdrawMin
-        })
+        // })
     })
     let end = Date.now();
     console.log('> Binance Connect initialized in ' + ((end-start)/1000).toFixed(2) + 's');
