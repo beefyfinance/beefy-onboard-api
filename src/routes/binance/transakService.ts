@@ -7,16 +7,14 @@ let currencyList: TransakFiatCurrency[] = [];
 
 let cryptoData: CryptoData;
 let fiatPayments: Record<string, FiatCurrencyPayment[]>;
-let countries: Countries;
+let countries: Record<string, Country>;
 
-interface Countries {
-    [countryCode: string]: {
-        isAllowed: boolean,
-        name: string,
-        alpha2: string,
-        alpha3: string,
-        currencyCode: string
-    }
+interface Country {
+    isAllowed: boolean,
+    name: string,
+    alpha2: string,
+    alpha3: string,
+    currencyCode: string
 }
 
 interface PaymentOption {
@@ -32,7 +30,8 @@ interface TransakFiatCurrency {
     isAllowed: boolean,
     minAmount: number,
     maxAmount: number,
-    paymentOptions: PaymentOption[]
+    paymentOptions: PaymentOption[],
+    currencyCode: string
 }
 
 interface TransakFiatCurrencyResponse {
@@ -73,7 +72,7 @@ export const getFiatCurrencies = async () => {
     try {
         let resp = await axios.get(API_URL + "/currencies/fiat-currencies");
         let currencyResponse: TransakFiatCurrencyResponse = resp.data;
-        return currencyResponse.response.filter((fiatCurrency: TransakFiatCurrency) => fiatCurrency.isAllowed).map((fiatCurrency: TransakFiatCurrency) => pick(fiatCurrency, 'symbol', 'supportingCountries', 'paymentOptions'));
+        return currencyResponse.response.map((fiatCurrency: TransakFiatCurrency) => pick(fiatCurrency, 'symbol', 'supportingCountries', 'paymentOptions', 'isAllowed', 'currencyCode'));
     } catch (error) {
         console.log('> Error fetching transak fiat currencies');
     }
@@ -82,14 +81,14 @@ export const getFiatCurrencies = async () => {
 export const getCryptoCurrencies = async () => {
     try {
         let resp = await axios.get(API_URL + "/currencies/crypto-currencies");
-        let cryptoCurrencyResponse: TransakCryptoCurrencyResponse =  resp.data;
+        let cryptoCurrencyResponse: TransakCryptoCurrencyResponse = resp.data;
         return cryptoCurrencyResponse.response.filter((cryptoCurrency: TransakCryptoCurrency) => cryptoCurrency.isAllowed).map((cryptoCurrency: TransakCryptoCurrency) => pick(cryptoCurrency, 'symbol', 'isAllowed', "network"))
     } catch (error) {
         console.log('> Error fetching transak fiat currencies');
     }
 }
 
-export const getCountries = async () => { 
+export const getCountries = async () => {
     try {
         let resp = await axios.get(API_URL + "/countries");
         let countryData: TransakCountryResponse[] = resp.data.response.map((country: TransakCountryResponse) => pick(country, "name", "alpha2", "alpha3", "currencyCode", "isAllowed"));
@@ -113,18 +112,18 @@ interface FiatCurrencyPayment {
     supportingCountries: string[]
 }
 
-interface CryptoDetail {    
+interface CryptoDetail {
     fiatCurrencies: {
         [fiatCurrency: string]: FiatCurrencyPayment[]
     },
     networks: {
-        [network:string]: {}
+        [network: string]: {}
     }
 }
 
 interface CryptoDetailNetwork {
     networks: {
-        [network:string]: NetworkOffering[]
+        [network: string]: NetworkOffering[]
     }
 }
 
@@ -214,7 +213,7 @@ const fetchData = async () => {
         })
     })
     let end = Date.now();
-    console.log('> Transak initialized in ' + ((end-start)/1000).toFixed(2) + 's');
+    console.log('> Transak initialized in ' + ((end - start) / 1000).toFixed(2) + 's');
 }
 
 
@@ -225,7 +224,7 @@ export const getTransakData = (countryCode: string) => {
     Object.keys(fiatPayments).forEach(currency => {
         let supportedList = fiatPayments[currency].filter(payment => payment.supportingCountries.includes(countryCode));
         if (supportedList.length > 0) {
-            supportedFiatInCountry[currency] =  supportedList;
+            supportedFiatInCountry[currency] = supportedList;
         }
     });
     let transakDataForCountry: ProviderOptions = {};
@@ -233,14 +232,14 @@ export const getTransakData = (countryCode: string) => {
     Object.keys(cryptoData).forEach(cryptoCurrency => {
         const networks = cryptoData[cryptoCurrency].networks;
         const notSupported: UnsupportedFiat[] = [];
-        
-        
+
+
         transakDataForCountry[cryptoCurrency] = {
             fiatCurrencies: {},
             networks: {}
         }
-        
-        
+
+
         Object.keys(cryptoData[cryptoCurrency].networks).forEach(network => {
             transakDataForCountry[cryptoCurrency].networks[network] = [];
             networks[network].forEach(networkDetail => {
@@ -260,12 +259,20 @@ export const getTransakData = (countryCode: string) => {
                 return !notSupported.some(notSup => c.paymentMethod === notSup.paymentMethod && currency === notSup.fiatCurrency);
             })
             if (supported.length === 0) return;
-            
+
 
         })
 
     })
     return supportedFiatInCountry;
+}
+
+export const getCountryCurrency = (countryCode: string) => {
+    return countries[countryCode] ? countries[countryCode].currencyCode : 'USD';
+}
+
+export const isCountryAllowed = (countryCode: string) => {
+    return countries[countryCode]?.isAllowed ?? false;
 }
 
 fetchData();

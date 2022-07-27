@@ -2,6 +2,7 @@ import { FastifyPluginAsync } from "fastify"
 import { getCountryFromIP } from "./ipService"
 import { checkIpAddress, getData, getNetworkList, getTradePairs } from "./service"
 import { getCountries, getCryptoCurrencies, getFiatCurrencies, getTransakData } from "./transakService"
+import { onboardStart } from './onboard'
 
 const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
   fastify.get('/', async function (request, reply) {
@@ -50,7 +51,8 @@ const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
   })
 
   fastify.get('/onboard', async function (request, reply) {
-    return await getTransakData("GB");;
+    // return await onboardStart(request.ip);
+    return await onboardStart("171.18.5.5");
   })
 
 }
