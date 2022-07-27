@@ -72,7 +72,7 @@ export const getFiatCurrencies = async () => {
     try {
         let resp = await axios.get(API_URL + "/currencies/fiat-currencies");
         let currencyResponse: TransakFiatCurrencyResponse = resp.data;
-        return currencyResponse.response.map((fiatCurrency: TransakFiatCurrency) => pick(fiatCurrency, 'symbol', 'supportingCountries', 'paymentOptions', 'isAllowed', 'currencyCode'));
+        return currencyResponse.response.filter((fiatCurrency: TransakFiatCurrency) => fiatCurrency.isAllowed).map((fiatCurrency: TransakFiatCurrency) => pick(fiatCurrency, 'symbol', 'supportingCountries', 'paymentOptions', 'isAllowed', 'currencyCode'));
     } catch (error) {
         console.log('> Error fetching transak fiat currencies');
     }
