@@ -9,6 +9,7 @@ interface OnboardResponse {
 }
 
 export const onboardStart = async (ipAddress: string) => {
+    const start = Date.now();
     let countryCode = await getCountryFromIP(ipAddress);
 
     console.log(`> ${ipAddress} connecting from ${countryCode}`);
@@ -36,6 +37,9 @@ export const onboardStart = async (ipAddress: string) => {
         let transakData = getTransakData(countryCode);
         if (Object.keys(transakData).length > 0) resp.providers.transak = transakData;
     }
+
+    const end = Date.now();
+    console.log(`Onboard time: ${((end-start)/1000).toFixed(2)}s`)
 
     return resp;
 }

@@ -1,6 +1,7 @@
 import { join } from 'path';
 import AutoLoad, {AutoloadPluginOptions} from '@fastify/autoload';
 import Fastify, { FastifyPluginAsync } from 'fastify';
+import cors from '@fastify/cors';
 require('dotenv').config();
 
 export type AppOptions = {
@@ -19,6 +20,8 @@ const startApp: FastifyPluginAsync<AppOptions> = async (
   // Place here your custom code!
 
   // Do not touch the following lines
+
+  void fastify.register(cors);
 
   // This loads all plugins defined in plugins
   // those should be support plugins that are reused

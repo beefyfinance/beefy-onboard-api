@@ -56,6 +56,12 @@ const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     // return await onboardStart("181.102.55.84");
   })
 
+  fastify.post('/quote', async function (request, reply) {
+    const body = request.body;
+    const requiredFields = ['providers', 'network', 'fiatCurrency', 'cryptoCurrency', '']
+    return 'ok';
+  })
+
 }
 
 
