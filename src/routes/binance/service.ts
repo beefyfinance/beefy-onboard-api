@@ -53,7 +53,7 @@ export const getNetworkList = async () => {
         const config = getHeaders("", ts);
         let response = await proxyInstance.get('/gateway-api/v1/public/open-api/connect/get-crypto-network-list', config);
 
-        const networkList: CryptoNetworkResponse[] = response.data.data.map((resp: CryptoNetworkResponse) => pick(resp, "cryptoCurrency", "network", "withdrawMax", "withdrawMin"));
+        const networkList: CryptoNetworkResponse[] = response.data.data.map((resp: CryptoNetworkResponse) => pick(resp, "cryptoCurrency", "network", "withdrawMax", "withdrawMin", "withdrawFee"));
         return networkList;
     } catch (error) {
         console.log((error as any).message);
@@ -173,12 +173,48 @@ const fetchData = async () => {
 
         providerOptions[network.cryptoCurrency].networks.push(network.network);
         // providerOptions[network.cryptoCurrency].networks[network.network].push({
-            // withdrawMax: network.withdrawMax,
-            // withdrawMin: network.withdrawMin
+        // withdrawMax: network.withdrawMax,
+        // withdrawMin: network.withdrawMin
         // })
     })
     let end = Date.now();
-    console.log('> Binance Connect initialized in ' + ((end-start)/1000).toFixed(2) + 's');
+    console.log('> Binance Connect initialized in ' + ((end - start) / 1000).toFixed(2) + 's');
+}
+
+interface Quote {
+    quote: number,
+    fee: number,
+    paymentMethod: string
+}
+
+export const getQuote = async (network: string, cryptoCurrency: string, fiatCurrency: string, amountType: string, amount: number) => {
+    const pairList = await getTradePairs();
+    const networkList = await getNetworkList();
+    let filtered = pairList.filter(pair => pair.fiatCurrency === fiatCurrency && pair.cryptoCurrency === cryptoCurrency);
+
+    if (amountType === 'fiat') {
+        filtered = filtered.filter(pair => {
+            let cryptoAmount = amount / pair.quotation;
+            return cryptoAmount >= (pair.minLimit ?? 0) && cryptoAmount <= (pair.maxLimit ?? Number.MAX_SAFE_INTEGER);
+        })
+    } else {
+        filtered = filtered.filter(pair => amount >= pair.minLimit && amount <= (pair.maxLimit ?? Number.MAX_SAFE_INTEGER));
+    }
+
+    let filteredNetwork = networkList.filter(networkElem => networkElem.network === network && networkElem.cryptoCurrency === cryptoCurrency);
+
+    if (filteredNetwork.length === 0) return [];
+
+    let networkData = filteredNetwork[0]
+
+    let quotes: Quote[] = filtered.map(pair => {
+        return { quote: pair.quotation, fee: networkData.withdrawFee, paymentMethod: pair.paymentMethod };
+    });
+
+    console.log(quotes);
+
+    return quotes;
+
 }
 
 export const getData = () => {

@@ -2,7 +2,7 @@ import { FastifyPluginAsync } from "fastify"
 import { getCountryFromIP } from "./ipService"
 import { checkIpAddress, getData, getNetworkList, getTradePairs } from "./service"
 import { getCountries, getCryptoCurrencies, getFiatCurrencies, getTransakData } from "./transakService"
-import { onboardStart } from './onboard'
+import { getQuotes, onboardStart } from './onboard'
 
 const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
   fastify.get('/', async function (request, reply) {
@@ -56,11 +56,13 @@ const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     // return await onboardStart("181.102.55.84");
   })
 
-  fastify.post('/quote', async function (request, reply) {
-    const body = request.body;
-    const requiredFields = ['providers', 'network', 'fiatCurrency', 'cryptoCurrency', '']
-    return 'ok';
-  })
+  fastify.get('/quote', async function (request, reply) {
+    return await getQuotes([
+      'transak',
+      'binance'
+    ],
+    'BNB', 'BUSD', 'GBP', 'fiat', 500, 'GB')
+  });
 
 }
 

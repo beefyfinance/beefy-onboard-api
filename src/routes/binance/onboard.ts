@@ -1,6 +1,6 @@
 import { getCountryFromIP } from "./ipService"
-import { checkIpAddress, getData } from "./service"
-import { getCountryCurrency, getTransakData, isCountryAllowed } from "./transakService";
+import { checkIpAddress, getData, getQuote } from "./service"
+import { getCountryCurrency, getTQuote, getTransakData, isCountryAllowed } from "./transakService";
 
 interface OnboardResponse {
     countryCode: string,
@@ -42,4 +42,20 @@ export const onboardStart = async (ipAddress: string) => {
     console.log(`Onboard time: ${((end-start)/1000).toFixed(2)}s`)
 
     return resp;
+}
+
+
+
+export const getQuotes = async (providers: string[], network: string, cryptoCurrency: string, fiatCurrency: string, amountType: string, amount: number, countryCode: string) => {
+    let response: any = {};
+    if (providers.includes('transak')) {
+        console.log('fetching transak');
+        response.transak = await getTQuote(network, cryptoCurrency, fiatCurrency, amountType, amount, countryCode);
+    }
+    if (providers.includes('binance')) {
+        console.log('fetching binance');
+        response.binance = await getQuote(network, cryptoCurrency, fiatCurrency, amountType, amount);
+    }
+
+    return response;
 }

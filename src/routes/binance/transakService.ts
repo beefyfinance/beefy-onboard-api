@@ -295,5 +295,67 @@ export const isCountryAllowed = (countryCode: string) => {
     return countries[countryCode]?.isAllowed ?? false;
 }
 
+const transakQuote = async (network: string, cryptoCurrency: string, fiatCurrency: string, paymentMethod: string, amountType: string, amount: number) => {
+
+    let key = amountType === "fiat" ? "fiatAmount" : "cryptoAmount";
+    let queryParams = `?cryptoCurrency=${cryptoCurrency}&fiatCurrency=${fiatCurrency}&network=${network}&is`
+    const params = {
+        cryptoCurrency,
+        fiatCurrency,
+        network,
+        isBuyOrSell: "BUY",
+        paymentMethod: paymentMethod,
+        partnerApiKey: process.env.TRANSAK_API_KEY,
+        [key]: amount
+    }
+
+    const resp = await axios.get(API_URL + "/currencies/price", { params });
+    
+    let quoteData = resp.data.response;
+    console.log(quoteData)
+    console.log(( quoteData.cryptoAmount / quoteData.fiatAmount))
+
+    return {
+        quote: 1/ ( quoteData.cryptoAmount / quoteData.fiatAmount),
+        paymentMethod,
+        fee: quoteData.totalFee
+    }
+}
+
+interface Quote {
+    quote: number,
+    fee: number,
+    paymentMethod: string
+}
+
+export const getTQuote = async (network: string, cryptoCurrency: string, fiatCurrency: string, amountType: string, amount: number, countryCode: string) => {
+
+    let data = getTransakData(countryCode);
+
+    let paymentMethods: string[] = fiatPayments[fiatCurrency].filter(payment => payment.supportingCountries?.includes(countryCode)).map(payment => payment.paymentMethod);
+
+    const quotes: Quote[] = [];
+
+    let promises = [];
+    for (const method of paymentMethods) {
+        promises.push(transakQuote('ethereum', 'ETH', 'GBP', method, "crypto", 0.3));
+    }
+
+    let quoteResults = await Promise.all(promises);
+
+    return quoteResults;
+    //     console.log(method)
+    //     try {
+
+    //         let quote = await transakQuote('ethereum', 'ETH', 'GBP', method, "crypto", 0.3);
+    //         quotes.push(quote);
+    //     } catch (err) {
+    //         console.log(err);
+    //     }
+    // }
+
+    // return quotes;
+}
+
 fetchData();
 
