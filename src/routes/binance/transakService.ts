@@ -9,6 +9,31 @@ let cryptoData: CryptoData;
 let fiatPayments: Record<string, FiatCurrencyPayment[]>;
 let countries: Record<string, Country>;
 
+const allowedNetworks: Set<string> = new Set([
+    'optimism',
+    'arbitrum',
+    'polygon',
+    'bsc',
+    'avaxcchain',
+    'fantom',
+    'celo',
+    'moonriver',
+    'mainnet',
+    'ethereum'
+]);
+
+const chainMapping = {
+    'optimism': 'OP',
+    'arbitrum': 'ARBI',
+    'polygon': 'MATIC',
+    'bsc': 'BNB',
+    'avaxcchain': 'AVAX',
+    'fantom': 'FTM',
+    'celo': 'CELO',
+    'moonriver': 'MOVR',
+    'mainnet': 'ETH'
+}
+
 interface Country {
     isAllowed: boolean,
     name: string,
@@ -82,7 +107,7 @@ export const getCryptoCurrencies = async () => {
     try {
         let resp = await axios.get(API_URL + "/currencies/crypto-currencies");
         let cryptoCurrencyResponse: TransakCryptoCurrencyResponse = resp.data;
-        return cryptoCurrencyResponse.response.filter((cryptoCurrency: TransakCryptoCurrency) => cryptoCurrency.isAllowed).map((cryptoCurrency: TransakCryptoCurrency) => pick(cryptoCurrency, 'symbol', 'isAllowed', "network"))
+        return cryptoCurrencyResponse.response.filter((cryptoCurrency: TransakCryptoCurrency) => cryptoCurrency.isAllowed && allowedNetworks.has(cryptoCurrency.network.name)).map((cryptoCurrency: TransakCryptoCurrency) => pick(cryptoCurrency, 'symbol', 'isAllowed', "network"))
     } catch (error) {
         console.log('> Error fetching transak fiat currencies');
     }
@@ -170,6 +195,7 @@ const fetchData = async () => {
 
     // I can get crypto - network and not allowed payments
     let cryptoCurrencies = await getCryptoCurrencies();
+
     let fiatCurrencies = await getFiatCurrencies();
 
     cryptoData = {};
@@ -201,6 +227,7 @@ const fetchData = async () => {
         }
 
         const networkName = normalizeNetworkName(currency.network.name);
+        // const networkName = currency.network.name;
         allChains.add(networkName)
         if (!cryptoData[currency.symbol].networks.hasOwnProperty(networkName)) {
             cryptoData[currency.symbol].networks[networkName] = [];
@@ -210,6 +237,8 @@ const fetchData = async () => {
             unsupportedPayments: currency.network.fiatCurrenciesNotSupported
         })
     })
+    console.log('Transak chains')
+    console.log(allChains)
     let end = Date.now();
     console.log('> Transak initialized in ' + ((end - start) / 1000).toFixed(2) + 's');
 }
@@ -298,7 +327,6 @@ export const isCountryAllowed = (countryCode: string) => {
 const transakQuote = async (network: string, cryptoCurrency: string, fiatCurrency: string, paymentMethod: string, amountType: string, amount: number) => {
 
     let key = amountType === "fiat" ? "fiatAmount" : "cryptoAmount";
-    let queryParams = `?cryptoCurrency=${cryptoCurrency}&fiatCurrency=${fiatCurrency}&network=${network}&is`
     const params = {
         cryptoCurrency,
         fiatCurrency,
@@ -310,13 +338,11 @@ const transakQuote = async (network: string, cryptoCurrency: string, fiatCurrenc
     }
 
     const resp = await axios.get(API_URL + "/currencies/price", { params });
-    
+
     let quoteData = resp.data.response;
-    console.log(quoteData)
-    console.log(( quoteData.cryptoAmount / quoteData.fiatAmount))
 
     return {
-        quote: 1/ ( quoteData.cryptoAmount / quoteData.fiatAmount),
+        quote: 1 / (quoteData.cryptoAmount / quoteData.fiatAmount),
         paymentMethod,
         fee: quoteData.totalFee
     }
@@ -334,27 +360,20 @@ export const getTQuote = async (network: string, cryptoCurrency: string, fiatCur
 
     let paymentMethods: string[] = fiatPayments[fiatCurrency].filter(payment => payment.supportingCountries?.includes(countryCode)).map(payment => payment.paymentMethod);
 
-    const quotes: Quote[] = [];
 
+    let networkName: string = Object.entries(chainMapping).find(chain => chain[1] === network)?.[0] ?? "";
+    console.log('using transak chain ' )
+    console.log(networkName)
+
+    console.log('searching for ')
     let promises = [];
     for (const method of paymentMethods) {
-        promises.push(transakQuote('ethereum', 'ETH', 'GBP', method, "crypto", 0.3));
+        promises.push(transakQuote(networkName, cryptoCurrency, fiatCurrency, method, amountType, amount));
     }
 
     let quoteResults = await Promise.all(promises);
 
     return quoteResults;
-    //     console.log(method)
-    //     try {
-
-    //         let quote = await transakQuote('ethereum', 'ETH', 'GBP', method, "crypto", 0.3);
-    //         quotes.push(quote);
-    //     } catch (err) {
-    //         console.log(err);
-    //     }
-    // }
-
-    // return quotes;
 }
 
 fetchData();

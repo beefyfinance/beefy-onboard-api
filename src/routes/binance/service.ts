@@ -5,6 +5,8 @@ import { sign } from './protocol';
 const BINANCE_URL = process.env.BINANCE_CONNECT_URL || 'https://sandbox.bifinitypay.com';
 
 let providerOptions: ProviderOptions = {};
+
+const allowedNetworks = new Set(['BSC', 'ETH']);
 interface CryptoNetworkResponse {
     cryptoCurrency: string,
     network: string,
@@ -53,7 +55,9 @@ export const getNetworkList = async () => {
         const config = getHeaders("", ts);
         let response = await proxyInstance.get('/gateway-api/v1/public/open-api/connect/get-crypto-network-list', config);
 
-        const networkList: CryptoNetworkResponse[] = response.data.data.map((resp: CryptoNetworkResponse) => pick(resp, "cryptoCurrency", "network", "withdrawMax", "withdrawMin", "withdrawFee"));
+        const networkList: CryptoNetworkResponse[] = response.data.data
+            .map((resp: CryptoNetworkResponse) => pick(resp, "cryptoCurrency", "network", "withdrawMax", "withdrawMin", "withdrawFee"))
+            .filter((resp: CryptoNetworkResponse) => allowedNetworks.has(resp.network));
         return networkList;
     } catch (error) {
         console.log((error as any).message);
@@ -131,14 +135,14 @@ const fetchData = async () => {
     let start = Date.now();
 
     // Parallel ~0.42s
-    // let promises = [getNetworkList(), getTradePairs()];
-    // const results = await Promise.all(promises);
-    // const networkList = results[0] as CryptoNetworkResponse[];
-    // const pairList = results[1] as CryptoTradePair[];
+    let promises = [getNetworkList(), getTradePairs()];
+    const results = await Promise.all(promises);
+    const networkList = results[0] as CryptoNetworkResponse[];
+    const pairList = results[1] as CryptoTradePair[];
 
     // Sequential ~0.85s
-    const pairList = await getTradePairs();
-    const networkList = await getNetworkList();
+    // const pairList = await getTradePairs();
+    // const networkList = await getNetworkList();
 
     pairList.forEach(pair => {
         if (!providerOptions.hasOwnProperty(pair.cryptoCurrency)) {
@@ -177,6 +181,8 @@ const fetchData = async () => {
         // withdrawMin: network.withdrawMin
         // })
     })
+    console.log('Binance chains')
+    console.log(allChains)
     let end = Date.now();
     console.log('> Binance Connect initialized in ' + ((end - start) / 1000).toFixed(2) + 's');
 }
@@ -210,8 +216,6 @@ export const getQuote = async (network: string, cryptoCurrency: string, fiatCurr
     let quotes: Quote[] = filtered.map(pair => {
         return { quote: pair.quotation, fee: networkData.withdrawFee, paymentMethod: pair.paymentMethod };
     });
-
-    console.log(quotes);
 
     return quotes;
 

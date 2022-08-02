@@ -24,7 +24,6 @@ export const onboardStart = async (ipAddress: string) => {
         providers: {}
     };
 
-
     let checkBinanceIp = await checkIpAddress(ipAddress);
     console.log(`> Check binance IP test: ${checkBinanceIp}`)
     
@@ -54,7 +53,7 @@ export const getQuotes = async (providers: string[], network: string, cryptoCurr
     }
     if (providers.includes('binance')) {
         console.log('fetching binance');
-        response.binance = await getQuote('BNB', 'BUSD', 'USD', amountType, amount);
+        response.binance = await getQuote(network, cryptoCurrency, fiatCurrency, amountType, amount);
     }
 
     return response;
