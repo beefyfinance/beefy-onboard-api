@@ -58,3 +58,17 @@ export const getQuotes = async (providers: string[], network: string, cryptoCurr
 
     return response;
 }
+
+export const getFake = async (providers: string[], network: string, cryptoCurrency: string, fiatCurrency: string, amountType: string, amount: number, countryCode: string) => {
+    let response: any = {};
+    if (providers.includes('transak')) {
+        console.log('fetching transak');
+        response.transak = await getTQuote("ETH", "ETH", "GBP", "fiat", 500, "GB");
+    }
+    if (providers.includes('binance')) {
+        console.log('fetching binance');
+        response.binance = await getQuote("BSC", "BUSD", "USD", "fiat", 500);
+    }
+
+    return response;
+}

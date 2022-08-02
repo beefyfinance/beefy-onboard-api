@@ -31,7 +31,7 @@ const chainMapping = {
     'fantom': 'FTM',
     'celo': 'CELO',
     'moonriver': 'MOVR',
-    'mainnet': 'ETH'
+    'ethereum': 'ETH'
 }
 
 interface Country {

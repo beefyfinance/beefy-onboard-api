@@ -2,7 +2,7 @@ import { FastifyPluginAsync } from "fastify"
 import { getCountryFromIP } from "./ipService"
 import { checkIpAddress, getData, getNetworkList, getTradePairs } from "./service"
 import { getCountries, getCryptoCurrencies, getFiatCurrencies, getTransakData } from "./transakService"
-import { getQuotes, onboardStart } from './onboard'
+import { getFake, getQuotes, onboardStart } from './onboard'
 
 const bodyJsonSchema = {
   type: 'object',
@@ -86,6 +86,19 @@ const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     const body: any = request.body;
     try {
       let resp = await getQuotes(body.providers, body.network, body.cryptoCurrency, body.fiatCurrency, body.amountType, body.amount, countryCode);
+      return resp;
+    } catch (err) {
+      console.log(err);
+    }
+
+  });
+
+  fastify.post('/fake', { schema: { body: bodyJsonSchema } }, async function (request, reply) {
+    let countryCode = await getCountryFromIP(request.ip);
+
+    const body: any = request.body;
+    try {
+      let resp = await getFake(body.providers, body.network, body.cryptoCurrency, body.fiatCurrency, body.amountType, body.amount, countryCode);
       return resp;
     } catch (err) {
       console.log(err);
