@@ -13,7 +13,7 @@ export const getCountryFromIP = async (ipAddress: string): Promise<string> => {
     try {
         const response = await axios.get(url).then(res => res.data);
         countryCode = response.country_code2;
-        countryIPCache[ipAddress] = ipAddress;
+        countryIPCache[ipAddress] = countryCode;
     } catch (error) {
         console.log(`> Error fetching ip data`);
     }
