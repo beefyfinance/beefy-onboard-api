@@ -4,6 +4,28 @@ import { checkIpAddress, getData, getNetworkList, getTradePairs } from "./servic
 import { getCountries, getCryptoCurrencies, getFiatCurrencies, getTransakData } from "./transakService"
 import { getQuotes, onboardStart } from './onboard'
 
+const bodyJsonSchema = {
+  type: 'object',
+  required: ['cryptoCurrency', 'fiatCurrency', 'amountType', 'amount', 'network', 'providers'],
+  properties: {
+    cryptoCurrency: { type: 'string' },
+    fiatCurrency: { type: 'string' },
+    amountType: {
+      type: 'string',
+      enum: ['fiat', 'crypto']
+    },
+    amount: { type: 'number' },
+    network: { type: 'string' },
+    providers: {
+      type: 'array',
+      items: {
+        type: 'string',
+        enum: ['transak', 'binance']
+      }
+    }
+  }
+};
+
 const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
   fastify.get('/', async function (request, reply) {
     return 'Binance connect'
@@ -41,7 +63,7 @@ const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     await getCountries();
     return request.ip;
   })
-  
+
   fastify.get('/binanceData', async function (request, reply) {
     return await getData();;
   })
@@ -56,12 +78,19 @@ const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     // return await onboardStart("181.102.55.84");
   })
 
-  fastify.get('/quote', async function (request, reply) {
-    return await getQuotes([
-      'transak',
-      'binance'
-    ],
-    'BNB', 'BUSD', 'GBP', 'fiat', 500, 'GB')
+
+
+  fastify.post('/quote', { schema: { body: bodyJsonSchema } }, async function (request, reply) {
+    let countryCode = await getCountryFromIP(request.ip);
+
+    const body: any = request.body;
+    try {
+      let resp = await getQuotes(body.providers, body.network, body.cryptoCurrency, body.fiatCurrency, body.amountType, body.amount, countryCode);
+      return resp;
+    } catch (err) {
+      console.log(err);
+    }
+
   });
 
 }
