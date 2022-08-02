@@ -3,7 +3,10 @@ import axios from 'axios';
 const countryIPCache: Record<string, string> = {};
 
 export const getCountryFromIP = async (ipAddress: string): Promise<string> => {
-    if (countryIPCache.hasOwnProperty(ipAddress)) return countryIPCache[ipAddress];
+    if (countryIPCache.hasOwnProperty(ipAddress)) {
+        console.log('returning from cache');
+        return countryIPCache[ipAddress];
+    }
     
     const url = `https://api.iplocation.net/?ip=${ipAddress}`;
     let countryCode = "_";
