@@ -22,16 +22,15 @@ const allowedNetworks: Set<string> = new Set([
     'ethereum'
 ]);
 
-const chainMapping = {
-    'optimism': 'OP',
-    'arbitrum': 'ARBI',
-    'polygon': 'MATIC',
-    'bsc': 'BNB',
-    'avaxcchain': 'AVAX',
-    'fantom': 'FTM',
-    'celo': 'CELO',
-    'moonriver': 'MOVR',
-    'ethereum': 'ETH'
+const chainMapping: Record<string, string> = {
+    'optimism': 'optimism',
+    'arbitrum': 'arbitrum',
+    'polygon': 'polygon',
+    'bsc': 'bsc',
+    'avaxcchain': 'avax',
+    'fantom': 'fantom',
+    'celo': 'celo',
+    'moonriver': 'moonriver',
 }
 
 interface Country {
@@ -160,20 +159,9 @@ interface CryptoData {
 }
 
 const normalizeNetworkName = (name: string): string => {
-    const mapping: Record<string, string> = {
-        "ethereum": "ETH",
-        "mainnet": "BTC",
-        "bsc": "BSC",
-        "solana": "SOL",
-        "fantom": "FTM",
-        "celo": "CELO",
-        "avaxcchain": "AVAX",
-        "polygon": "MATIC",
-        "arbitrum": "ARBI",
-        "optimism": "OP",
-        "moonriver": "MOVR"
-    }
-    return mapping[name] ?? name;
+
+    return chainMapping[name] ?? name;
+    // return name;
 }
 
 const fetchData = async () => {
@@ -227,7 +215,6 @@ const fetchData = async () => {
         }
 
         const networkName = normalizeNetworkName(currency.network.name);
-        // const networkName = currency.network.name;
         allChains.add(networkName)
         if (!cryptoData[currency.symbol].networks.hasOwnProperty(networkName)) {
             cryptoData[currency.symbol].networks[networkName] = [];
@@ -337,6 +324,8 @@ const transakQuote = async (network: string, cryptoCurrency: string, fiatCurrenc
         [key]: amount
     }
 
+    console.log(params)
+
     const resp = await axios.get(API_URL + "/currencies/price", { params });
 
     let quoteData = resp.data.response;
@@ -356,8 +345,7 @@ interface Quote {
 
 export const getTQuote = async (network: string, cryptoCurrency: string, fiatCurrency: string, amountType: string, amount: number, countryCode: string) => {
 
-    let data = getTransakData(countryCode);
-
+    console.log("countrycode " + countryCode);
     let paymentMethods: string[] = fiatPayments[fiatCurrency].filter(payment => payment.supportingCountries?.includes(countryCode)).map(payment => payment.paymentMethod);
 
 
@@ -371,7 +359,9 @@ export const getTQuote = async (network: string, cryptoCurrency: string, fiatCur
         promises.push(transakQuote(networkName, cryptoCurrency, fiatCurrency, method, amountType, amount));
     }
 
-    let quoteResults = await Promise.all(promises);
+    let quoteResults = await Promise.allSettled(promises);
+
+    return quoteResults.filter(res => res.status === 'fulfilled').map(res => res);
 
     return quoteResults;
 }

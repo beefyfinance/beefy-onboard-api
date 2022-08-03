@@ -4,8 +4,8 @@ const countryIPCache: Record<string, string> = {};
 
 export const getCountryFromIP = async (ipAddress: string): Promise<string> => {
     if (countryIPCache.hasOwnProperty(ipAddress)) {
-        console.log('returning from cache');
-        return countryIPCache[ipAddress];
+        let countryCode = countryIPCache[ipAddress];
+        return countryCode === '_' || countryCode ==='-' ? 'GB': countryCode;
     }
     
     const url = `https://api.iplocation.net/?ip=${ipAddress}`;
@@ -17,5 +17,5 @@ export const getCountryFromIP = async (ipAddress: string): Promise<string> => {
     } catch (error) {
         console.log(`> Error fetching ip data`);
     }
-    return countryCode;
+    return countryCode === '_' || countryCode ==='-' ? 'GB': countryCode;
 }

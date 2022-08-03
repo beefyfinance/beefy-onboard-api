@@ -6,7 +6,11 @@ const BINANCE_URL = process.env.BINANCE_CONNECT_URL || 'https://sandbox.bifinity
 
 let providerOptions: ProviderOptions = {};
 
-const allowedNetworks = new Set(['BSC', 'ETH']);
+const allowedNetworks = new Set(['BSC']);
+
+const chainMapping: Record<string, string> = {
+    'BSC': 'bsc'
+}
 interface CryptoNetworkResponse {
     cryptoCurrency: string,
     network: string,
@@ -130,6 +134,10 @@ interface ProviderOptions {
     [cryptoCurrency: string]: CryptoDetail
 }
 
+const normalizeNetworkName = (network: string) => {
+    return chainMapping[network] ?? network;
+}
+
 const fetchData = async () => {
     console.log('> Initializing Binance Connect...');
     let start = Date.now();
@@ -166,7 +174,9 @@ const fetchData = async () => {
 
     let allChains = new Set();
     networkList.forEach(network => {
-        allChains.add(network.network);
+
+        let networkName = normalizeNetworkName(network.network)
+        allChains.add(networkName);
         if (!providerOptions.hasOwnProperty(network.cryptoCurrency)) {
             return console.log(`no crypto pair for network data for '${network.cryptoCurrency}'`);
         }
@@ -175,7 +185,7 @@ const fetchData = async () => {
         //     providerOptions[network.cryptoCurrency].networks[network.network] = [];
         // }
 
-        providerOptions[network.cryptoCurrency].networks.push(network.network);
+        providerOptions[network.cryptoCurrency].networks.push(networkName);
         // providerOptions[network.cryptoCurrency].networks[network.network].push({
         // withdrawMax: network.withdrawMax,
         // withdrawMin: network.withdrawMin
@@ -207,7 +217,9 @@ export const getQuote = async (network: string, cryptoCurrency: string, fiatCurr
         filtered = filtered.filter(pair => amount >= pair.minLimit && amount <= (pair.maxLimit ?? Number.MAX_SAFE_INTEGER));
     }
 
-    let filteredNetwork = networkList.filter(networkElem => networkElem.network === network && networkElem.cryptoCurrency === cryptoCurrency);
+    let networkName: string = Object.entries(chainMapping).find(chain => chain[1] === network)?.[0] ?? "";
+
+    let filteredNetwork = networkList.filter(networkElem => networkElem.network === networkName && networkElem.cryptoCurrency === cryptoCurrency);
 
     if (filteredNetwork.length === 0) return [];
 
