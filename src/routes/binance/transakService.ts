@@ -361,9 +361,16 @@ export const getTQuote = async (network: string, cryptoCurrency: string, fiatCur
 
     let quoteResults = await Promise.allSettled(promises);
 
-    return quoteResults.filter(res => res.status === 'fulfilled').map(res => res);
 
-    return quoteResults;
+    let quotes: Quote[] = [];
+    quoteResults.forEach((res:PromiseSettledResult<Quote>) => {
+        if (res.status === 'fulfilled') {
+            quotes.push(res.value);
+        }
+    })
+
+
+    return quotes;
 }
 
 fetchData();
