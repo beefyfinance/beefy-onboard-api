@@ -331,7 +331,7 @@ const transakQuote = async (network: string, cryptoCurrency: string, fiatCurrenc
     let quoteData = resp.data.response;
 
     return {
-        quote: 1 / (quoteData.cryptoAmount / quoteData.fiatAmount),
+        quote: 1 / (quoteData.marketConversionPrice),
         paymentMethod,
         fee: quoteData.totalFee
     }
