@@ -329,9 +329,11 @@ const transakQuote = async (network: string, cryptoCurrency: string, fiatCurrenc
     const resp = await axios.get(API_URL + "/currencies/price", { params });
 
     let quoteData = resp.data.response;
-
+    
+    console.log(paymentMethod)
+    console.log(resp.data.response)
     return {
-        quote: 1 / (quoteData.marketConversionPrice),
+        quote: 1 / (quoteData.conversionPrice),
         paymentMethod,
         fee: quoteData.totalFee
     }
