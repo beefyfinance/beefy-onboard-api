@@ -220,20 +220,23 @@ export const getQuote = async (network: string, cryptoCurrency: string, fiatCurr
     const networkList = await getNetworkList();
     let filtered = pairList.filter(pair => pair.fiatCurrency === fiatCurrency && pair.cryptoCurrency === cryptoCurrency);
 
-    if (amountType === 'fiat') {
+    if (amountType === 'crypto') {
         filtered = filtered.filter(pair => {
             let cryptoAmount = amount / pair.quotation;
             return cryptoAmount >= (pair.minLimit ?? 0) && cryptoAmount <= (pair.maxLimit ?? Number.MAX_SAFE_INTEGER);
         })
     } else {
-        filtered = filtered.filter(pair => amount >= pair.minLimit && amount <= (pair.maxLimit ?? Number.MAX_SAFE_INTEGER));
+        filtered = filtered.filter(pair => amount >= (pair.minLimit ?? 0) && amount <= (pair.maxLimit ?? Number.MAX_SAFE_INTEGER));
     }
 
     let networkName: string = Object.entries(chainMapping).find(chain => chain[1] === network)?.[0] ?? "";
 
+    console.log(networkName)
     let filteredNetwork = networkList.filter(networkElem => networkElem.network === networkName && networkElem.cryptoCurrency === cryptoCurrency);
 
-    if (filteredNetwork.length === 0) return [];
+    if (filteredNetwork.length === 0) {
+        return [];
+    }
 
     let networkData = filteredNetwork[0]
 
