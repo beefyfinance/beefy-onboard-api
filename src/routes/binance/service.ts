@@ -6,10 +6,20 @@ const BINANCE_URL = process.env.BINANCE_CONNECT_URL || 'https://sandbox.bifinity
 
 let providerOptions: ProviderOptions = {};
 
-const allowedNetworks = new Set(['BSC']);
+const allowedNetworks = new Set(['BSC', 'OPTIMISM', 'ARBITRUM', 'CELO', 'AVAX', 'FTM', 'MATIC', 'ONE', 'MOVR', 'GLMR', 'ROSE']);
 
 const chainMapping: Record<string, string> = {
-    'BSC': 'bsc'
+    'BSC': 'bsc',
+    'OPTIMISM': 'optimism',
+    'ARBITRUM': 'arbitrum',
+    'CELO': 'celo',
+    'AVAX': 'avax',
+    'FTM': 'fantom',
+    'MATIC': 'polygon',
+    'ONE': 'harmony',
+    'MOVR': 'moonriver',
+    'GLMR': 'moonbeam',
+    'ROSE': 'oasis'
 }
 interface CryptoNetworkResponse {
     cryptoCurrency: string,
@@ -95,6 +105,7 @@ export const checkIpAddress = async (ipAddress: string) => {
         return response.data.data.status === 'pass';
     } catch (error) {
         console.log(error);
+        return false;
     }
 }
 
@@ -135,7 +146,7 @@ interface ProviderOptions {
 }
 
 const normalizeNetworkName = (network: string) => {
-    return chainMapping[network] ?? network;
+    return  chainMapping[network] ?? network;
 }
 
 const fetchData = async () => {
