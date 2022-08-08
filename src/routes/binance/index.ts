@@ -3,8 +3,39 @@ import { getCountryFromIP } from "./ipService"
 import { checkIpAddress, getData, getNetworkList, getTradePairs } from "./service"
 import { getCountries, getCryptoCurrencies, getFiatCurrencies, getTransakData } from "./transakService"
 import { getFake, getQuotes, onboardStart } from './onboard'
+import { sign } from "./protocol"
 
 const bodyJsonSchema = {
+  type: 'object',
+  required: ['cryptoCurrency', 'fiatCurrency', 'amountType', 'amount', 'network', 'providers'],
+  properties: {
+    cryptoCurrency: { type: 'string' },
+    fiatCurrency: { type: 'string' },
+    amountType: {
+      type: 'string',
+      enum: ['fiat', 'crypto']
+    },
+    amount: { type: 'number' },
+    network: { type: 'string' },
+    providers: {
+      type: 'array',
+      items: {
+        type: 'string',
+        enum: ['transak', 'binance']
+      }
+    }
+  }
+};
+
+const signBodyJsonSchema = {
+  type: 'object',
+  required: ['stringToSign'],
+  properties: {
+    stringToSign: { type: 'string' }
+    }
+};
+
+const tradeBodyJsonSchema = {
   type: 'object',
   required: ['cryptoCurrency', 'fiatCurrency', 'amountType', 'amount', 'network', 'providers'],
   properties: {
@@ -103,6 +134,26 @@ const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     } catch (err) {
       console.log(err);
     }
+
+  });
+
+  fastify.post('/binanceTrade', { schema: { body: bodyJsonSchema } }, async function (request, reply) {
+    let countryCode = await getCountryFromIP(request.ip);
+
+    const body: any = request.body;
+    try {
+      let resp = await getFake(body.providers, body.network, body.cryptoCurrency, body.fiatCurrency, body.amountType, body.amount, countryCode);
+      return resp;
+    } catch (err) {
+      console.log(err);
+    }
+
+  });
+
+  fastify.post('/sign', { schema: { body: signBodyJsonSchema } } ,async function (request, reply) {
+
+    let body: any = request.body;
+    return sign(body.stringToSign).toString('base64');
 
   });
 

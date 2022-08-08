@@ -248,6 +248,34 @@ export const getQuote = async (network: string, cryptoCurrency: string, fiatCurr
 
 }
 
+export const getRedirect = async (fiatCurrency: string, cryptoCurrency: string, address: string, amount: number, network: string) => {
+    const ts = Date.now();
+    let networkName: string = Object.entries(chainMapping).find(chain => chain[1] === network)?.[0] ?? "";
+
+    try {
+        const body = {
+            baseCurrency: fiatCurrency,
+            businessType: 'BUY',
+            cryptoCurrency,
+            fiatCurrency,
+            merchantOrderId: `beefy-${ts}`,
+            merchantUserId: address,
+            orderAmount: amount,
+            withdrawCryptoInfo: {
+                cryptoAddress: address,
+                cryptoNetwork: networkName
+            }
+        };
+        const config = getHeaders(JSON.stringify(body), ts);
+        let response = await proxyInstance.post('/public/open-api/connect/trade', body, config);
+        console.log(response.data)
+        // return response.data.data.status === 'pass';
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+}
+
 export const getData = () => {
     return providerOptions;
 }
