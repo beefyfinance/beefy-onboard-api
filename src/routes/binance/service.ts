@@ -111,7 +111,8 @@ export const checkIpAddress = async (ipAddress: string) => {
 
 const getHeaders = (stringToSign: string, ts: number): AxiosRequestConfig => {
     const merchantSufix = `merchantCode=${process.env.MERCHANT_CODE}&timestamp=${ts}`
-    const signature = sign(stringToSign + merchantSufix);
+    const connector = stringToSign.length >= 1 ? "&" : "";
+    const signature = sign(stringToSign + connector +merchantSufix);
 
     const config: AxiosRequestConfig = {
         headers: {
