@@ -101,7 +101,7 @@ export const checkIpAddress = async (ipAddress: string) => {
         };
         const config = getHeaders(JSON.stringify(body), ts);
         let response = await proxyInstance.post('/gateway-api/v1/public/open-api/connect/check-ip-address', body, config);
-
+        console.log(response.data)
         return response.data.data.status === 'pass';
     } catch (error) {
         console.log(error);
