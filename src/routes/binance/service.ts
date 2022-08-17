@@ -4,6 +4,8 @@ import { sign } from './protocol';
 
 const BINANCE_URL = process.env.BINANCE_CONNECT_URL || 'https://sandbox.bifinitypay.com';
 
+const productionBaseURL = 'https://www.binancecnt.com/en/pre-connect';
+
 let providerOptions: ProviderOptions = {};
 
 const allowedNetworks = new Set(['BSC', 'OPTIMISM', 'ARBITRUM', 'CELO', 'AVAX', 'FTM', 'MATIC', 'ONE', 'MOVR', 'GLMR', 'ROSE']);
@@ -278,6 +280,15 @@ export const getRedirect = async (fiatCurrency: string, cryptoCurrency: string, 
 
 export const getData = () => {
     return providerOptions;
+}
+
+export const getBinanceConnectRedirect = (cryptoCurrency: string, fiatCurrency: string, network: string, amount:number, address: string) => {
+    let ts = Date.now();
+    let networkName: string = Object.entries(chainMapping).find(chain => chain[1] === network)?.[0] ?? "";
+    const redirectURL = productionBaseURL + '?';
+    const queryParams = `cryptoAddress=${address}&cryptoCurrency=${cryptoCurrency}&cryptoNetwork=${networkName}&fiatCurrency=${fiatCurrency}&merchantCode=${process.env.MERCHANT_CODE}&orderAmount=${amount}&timestamp=${ts}`
+    const signature = sign(queryParams).toString('base64');
+    return redirectURL + queryParams + `&signature=${signature}`;
 }
 
 fetchData();

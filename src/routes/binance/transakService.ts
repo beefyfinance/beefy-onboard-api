@@ -9,6 +9,9 @@ let cryptoData: CryptoData;
 let fiatPayments: Record<string, FiatCurrencyPayment[]>;
 let countries: Record<string, Country>;
 
+const productionBaseURL = 'https://global.transak.com/';
+const stagingBaseURL = 'https://staging-global.transak.com/';
+
 const allowedNetworks: Set<string> = new Set([
     'optimism',
     'arbitrum',
@@ -371,6 +374,15 @@ export const getTQuote = async (network: string, cryptoCurrency: string, fiatCur
 
 
     return quotes;
+}
+
+export const getTransakRedirectUrl = (cryptoCurrency: string, fiatCurrency: string, network: string, paymentMethod: string, amountType: string, amount: number, address: string) => {
+    let networkName: string = Object.entries(chainMapping).find(chain => chain[1] === network)?.[0] ?? "";
+    let amountParamName = amountType === 'fiat' ? 'defaultFiatAmount' : 'defaultCryptoAmount';
+    let redirectURL = productionBaseURL +
+        `?apiKey=${process.env.TRANSAK_API_KEY}&defaultCryptoCurrency=${cryptoCurrency}&fiatCurrency=${fiatCurrency}&defaultNetwork=${networkName}&hideMenu=true` +
+        `&defaultPaymentMethod=${paymentMethod}&${amountParamName}=${amount}&walletAddress=${address}`;
+    return redirectURL;
 }
 
 fetchData();

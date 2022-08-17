@@ -2,7 +2,7 @@ import { FastifyPluginAsync } from "fastify"
 import { getCountryFromIP } from "./ipService"
 import { checkIpAddress, getData, getNetworkList, getTradePairs } from "./service"
 import { getCountries, getCryptoCurrencies, getFiatCurrencies, getTransakData } from "./transakService"
-import { getFake, getQuotes, onboardStart } from './onboard'
+import { getFake, getQuotes, getRedirect, onboardStart } from './onboard'
 import { sign } from "./protocol"
 
 const bodyJsonSchema = {
@@ -53,7 +53,28 @@ const tradeBodyJsonSchema = {
         type: 'string',
         enum: ['transak', 'binance']
       }
-    }
+    },
+    paymentMethod: { type: 'string' },
+  }
+};
+
+const redirectBodyJsonSchema = {
+  type: 'object',
+  required: ['cryptoCurrency', 'fiatCurrency', 'amountType', 'amount', 'network', 'provider', 'address'],
+  properties: {
+    cryptoCurrency: { type: 'string' },
+    fiatCurrency: { type: 'string' },
+    amountType: {
+      type: 'string',
+      enum: ['fiat', 'crypto']
+    },
+    amount: { type: 'number' },
+    network: { type: 'string' },
+    provider: {
+      type: 'string',
+      enum: ['transak', 'binance']
+    },
+    paymentMethod: { type: 'string'}
   }
 };
 
@@ -154,6 +175,16 @@ const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
 
     let body: any = request.body;
     return sign(body.stringToSign).toString('base64');
+
+  });
+
+  fastify.post('/init', { schema: { body: redirectBodyJsonSchema } } ,async function (request, reply) {
+
+    let body: any = request.body;
+
+    if (body.provider === 'transak' && !body.paymentMethod) reply.badRequest("'paymentMethod' required for transak provider")
+    if (body.provider === 'binance' && body.amountType !== 'fiat') reply.badRequest("'fiat' amountType required for binance provider")
+    return getRedirect(body.provider, body.network, body.cryptoCurrency, body.fiatCurrency, body.amountType, body.amount, body.address, body.paymentMethod);
 
   });
 

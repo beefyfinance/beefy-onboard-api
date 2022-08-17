@@ -1,6 +1,6 @@
 import { getCountryFromIP } from "./ipService"
-import { checkIpAddress, getData, getQuote } from "./service"
-import { getCountryCurrency, getTQuote, getTransakData, isCountryAllowed } from "./transakService";
+import { checkIpAddress, getBinanceConnectRedirect, getData, getQuote } from "./service"
+import { getCountryCurrency, getTQuote, getTransakData, getTransakRedirectUrl, isCountryAllowed } from "./transakService";
 
 interface OnboardResponse {
     countryCode: string,
@@ -71,4 +71,12 @@ export const getFake = async (providers: string[], network: string, cryptoCurren
     }
 
     return response;
+}
+
+export const getRedirect = (provider: string, network: string, cryptoCurrency: string, fiatCurrency: string, amountType: string, amount: number, address: string, paymentMethod: string) => {
+    if (provider === 'transak') {
+        return getTransakRedirectUrl(cryptoCurrency, fiatCurrency, network, paymentMethod, amountType, amount, address);
+    } else if (provider === 'binance') {
+        return getBinanceConnectRedirect(cryptoCurrency, fiatCurrency, network, amount, address);
+    }
 }
