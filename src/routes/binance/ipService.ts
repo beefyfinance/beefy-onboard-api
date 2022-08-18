@@ -17,5 +17,5 @@ export const getCountryFromIP = async (ipAddress: string): Promise<string> => {
     } catch (error) {
         console.log(`> Error fetching ip data`);
     }
-    return countryCode === '_' || countryCode ==='-' ? 'GB': countryCode;
+    return countryCode === '_' || countryCode === '-' ? 'GB': countryCode;
 }
