@@ -381,7 +381,8 @@ export const getTransakRedirectUrl = (cryptoCurrency: string, fiatCurrency: stri
     let amountParamName = amountType === 'fiat' ? 'defaultFiatAmount' : 'defaultCryptoAmount';
     let redirectURL = productionBaseURL +
         `?apiKey=${process.env.TRANSAK_API_KEY}&defaultCryptoCurrency=${cryptoCurrency}&fiatCurrency=${fiatCurrency}&defaultNetwork=${networkName}&hideMenu=true` +
-        `&defaultPaymentMethod=${paymentMethod}&${amountParamName}=${amount}&walletAddress=${address}`;
+        `&defaultPaymentMethod=${paymentMethod}&${amountParamName}=${amount}` +
+        (address ? `&walletAddress=${address}` : '');
     return redirectURL;
 }
 

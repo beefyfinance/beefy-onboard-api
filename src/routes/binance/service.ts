@@ -286,7 +286,7 @@ export const getBinanceConnectRedirect = (cryptoCurrency: string, fiatCurrency: 
     let ts = Date.now();
     let networkName: string = Object.entries(chainMapping).find(chain => chain[1] === network)?.[0] ?? "";
     const redirectURL = productionBaseURL + '?';
-    const queryParams = `cryptoAddress=${address}&cryptoCurrency=${cryptoCurrency}&cryptoNetwork=${networkName}&fiatCurrency=${fiatCurrency}&merchantCode=${process.env.MERCHANT_CODE}&orderAmount=${amount}&timestamp=${ts}`
+    const queryParams = (address ? `cryptoAddress=${address}&` : '') + `cryptoCurrency=${cryptoCurrency}&cryptoNetwork=${networkName}&fiatCurrency=${fiatCurrency}&merchantCode=${process.env.MERCHANT_CODE}&orderAmount=${amount}&timestamp=${ts}`
     const signature = sign(queryParams).toString('base64');
     return redirectURL + queryParams + `&signature=${signature}`;
 }

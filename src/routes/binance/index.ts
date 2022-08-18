@@ -60,7 +60,7 @@ const tradeBodyJsonSchema = {
 
 const redirectBodyJsonSchema = {
   type: 'object',
-  required: ['cryptoCurrency', 'fiatCurrency', 'amountType', 'amount', 'network', 'provider', 'address'],
+  required: ['cryptoCurrency', 'fiatCurrency', 'amountType', 'amount', 'network', 'provider'],
   properties: {
     cryptoCurrency: { type: 'string' },
     fiatCurrency: { type: 'string' },
