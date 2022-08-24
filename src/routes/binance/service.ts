@@ -114,7 +114,7 @@ export const checkIpAddress = async (ipAddress: string) => {
 const getHeaders = (stringToSign: string, ts: number): AxiosRequestConfig => {
     const merchantSufix = `merchantCode=${process.env.MERCHANT_CODE}&timestamp=${ts}`
     const connector = stringToSign.length >= 1 ? "&" : "";
-    const signature = sign(stringToSign + connector +merchantSufix);
+    const signature = sign(stringToSign + connector + merchantSufix);
 
     const config: AxiosRequestConfig = {
         headers: {
@@ -149,7 +149,7 @@ interface ProviderOptions {
 }
 
 const normalizeNetworkName = (network: string) => {
-    return  chainMapping[network] ?? network;
+    return chainMapping[network] ?? network;
 }
 
 const fetchData = async () => {
@@ -243,11 +243,12 @@ export const getQuote = async (network: string, cryptoCurrency: string, fiatCurr
     let networkData = filteredNetwork[0]
 
     let quotes: Quote[] = filtered.map(pair => {
-        return { quote: pair.quotation, fee: networkData.withdrawFee, paymentMethod: pair.paymentMethod };
+        let fixedFee = amountType === 'fiat' ? amount * 0.02 : amount / pair.quotation * 0.02;
+        return { quote: pair.quotation, fee: fixedFee, paymentMethod: pair.paymentMethod };
+        // return { quote: pair.quotation, fee: networkData.withdrawFee, paymentMethod: pair.paymentMethod };
     });
 
     return quotes;
-
 }
 
 export const getRedirect = async (fiatCurrency: string, cryptoCurrency: string, address: string, amount: number, network: string) => {
@@ -282,7 +283,7 @@ export const getData = () => {
     return providerOptions;
 }
 
-export const getBinanceConnectRedirect = (cryptoCurrency: string, fiatCurrency: string, network: string, amount:number, address: string) => {
+export const getBinanceConnectRedirect = (cryptoCurrency: string, fiatCurrency: string, network: string, amount: number, address: string) => {
     let ts = Date.now();
     let networkName: string = Object.entries(chainMapping).find(chain => chain[1] === network)?.[0] ?? "";
     const redirectURL = productionBaseURL + '?';
