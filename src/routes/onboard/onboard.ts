@@ -1,5 +1,5 @@
 import { getCountryFromIP } from "./ipService"
-import { checkIpAddress, getBinanceConnectRedirect, getData, getQuote } from "./service"
+import { checkIpAddress, getBinanceConnectRedirect, getData, getQuote } from "./binance"
 import { getCountryCurrency, getTQuote, getTransakData, getTransakRedirectUrl, isCountryAllowed } from "./transakService";
 
 interface OnboardResponse {
