@@ -127,11 +127,6 @@ const getHeaders = (stringToSign: string, ts: number): AxiosRequestConfig => {
     return config;
 }
 
-interface NetworkOffering {
-    // withdrawMax: number,
-    // withdrawMin: number
-}
-
 interface FiatCurrencyPayment {
     paymentMethod: string,
     minLimit: number,
@@ -200,10 +195,6 @@ const fetchData = async () => {
         // }
 
         providerOptions[network.cryptoCurrency].networks.push(networkName);
-        // providerOptions[network.cryptoCurrency].networks[network.network].push({
-        // withdrawMax: network.withdrawMax,
-        // withdrawMin: network.withdrawMin
-        // })
     })
     console.log('Binance chains')
     console.log(allChains)
@@ -240,7 +231,8 @@ export const getQuote = async (network: string, cryptoCurrency: string, fiatCurr
         return [];
     }
 
-    let networkData = filteredNetwork[0]
+    //Use this for real fees, not hardcoded ones
+    // let networkData = filteredNetwork[0];
 
     let quotes: Quote[] = filtered.map(pair => {
         let fixedFee = amountType === 'fiat' ? amount * 0.02 : amount / pair.quotation * 0.02;
@@ -249,34 +241,6 @@ export const getQuote = async (network: string, cryptoCurrency: string, fiatCurr
     });
 
     return quotes;
-}
-
-export const getRedirect = async (fiatCurrency: string, cryptoCurrency: string, address: string, amount: number, network: string) => {
-    const ts = Date.now();
-    let networkName: string = Object.entries(chainMapping).find(chain => chain[1] === network)?.[0] ?? "";
-
-    try {
-        const body = {
-            baseCurrency: fiatCurrency,
-            businessType: 'BUY',
-            cryptoCurrency,
-            fiatCurrency,
-            merchantOrderId: `beefy-${ts}`,
-            merchantUserId: address,
-            orderAmount: amount,
-            withdrawCryptoInfo: {
-                cryptoAddress: address,
-                cryptoNetwork: networkName
-            }
-        };
-        const config = getHeaders(JSON.stringify(body), ts);
-        let response = await proxyInstance.post('/public/open-api/connect/trade', body, config);
-        console.log(response.data)
-        // return response.data.data.status === 'pass';
-    } catch (error) {
-        console.log(error);
-        return false;
-    }
 }
 
 export const getData = () => {
