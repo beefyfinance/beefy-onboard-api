@@ -52,15 +52,19 @@ interface CryptoTradePair {
     maxLimit: number
 }
 
+const FIXIE_PROXY = process.env.FIXIE_URL;
+const FIXIE_HOST = FIXIE_PROXY?.split('@')[1].split(':')[0];
+const FIXIE_PASSWORD = FIXIE_PROXY?.split(':')[2].split('@')[0];
+
 const proxyInstance = axios.create({
     baseURL: BINANCE_URL,
     proxy: {
         protocol: 'http',
         port: 80,
-        host: 'velodrome.usefixie.com',
+        host: FIXIE_HOST || "",
         auth: {
             username: 'fixie',
-            password: process.env.FIXIE_TOKEN || ""
+            password: FIXIE_PASSWORD || ""
         }
     }
 });
