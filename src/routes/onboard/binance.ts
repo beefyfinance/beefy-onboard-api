@@ -265,4 +265,4 @@ export const getBinanceConnectRedirect = (cryptoCurrency: string, fiatCurrency: 
     return redirectURL + newParams;
 }
 
-// fetchData();
+fetchData();
