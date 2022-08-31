@@ -255,9 +255,14 @@ export const getBinanceConnectRedirect = (cryptoCurrency: string, fiatCurrency: 
     let ts = Date.now();
     let networkName: string = Object.entries(chainMapping).find(chain => chain[1] === network)?.[0] ?? "";
     const redirectURL = productionBaseURL + '?';
-    const queryParams = (address ? `cryptoAddress=${address}&` : '') + `cryptoCurrency=${cryptoCurrency}&cryptoNetwork=${networkName}&fiatCurrency=${fiatCurrency}&merchantCode=${process.env.MERCHANT_CODE}&orderAmount=${amount}&timestamp=${ts}`
-    const signature = sign(queryParams).toString('base64');
-    return redirectURL + queryParams + `&signature=${signature}`;
+
+    const signatureParams = `cryptoAddress=${address}&cryptoNetwork=${networkName}&merchantCode=${process.env.MERCHANT_CODE}&timestamp=${ts}`
+    const newSignature = encodeURIComponent(sign(signatureParams).toString('base64'));
+    const newParams = (address ? `cryptoAddress=${address}&` : '') + `cryptoCurrency=${cryptoCurrency}&cryptoNetwork=${networkName}&fiatCurrency=${fiatCurrency}&merchantCode=${process.env.MERCHANT_CODE}&orderAmount=${amount}&signature=${newSignature}&timestamp=${ts}`;
+    // const queryParams = (address ? `cryptoAddress=${address}&` : '') + `cryptoCurrency=${cryptoCurrency}&cryptoNetwork=${networkName}&fiatCurrency=${fiatCurrency}&merchantCode=${process.env.MERCHANT_CODE}&orderAmount=${amount}&timestamp=${ts}`
+    // const signature = sign(queryParams).toString('base64');
+    // return redirectURL + queryParams + `&signature=${signature}`;
+    return redirectURL + newParams;
 }
 
-fetchData();
+// fetchData();
