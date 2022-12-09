@@ -29,7 +29,8 @@ const allowedNetworks: Set<string> = new Set([
   'avaxcchain',
   'fantom',
   'celo',
-  'moonriver'
+  'moonriver',
+  'ethereum'
 ]);
 
 const chainMapping: Record<string, string> = {
@@ -41,6 +42,7 @@ const chainMapping: Record<string, string> = {
   'fantom': 'fantom',
   'celo': 'celo',
   'moonriver': 'moonriver',
+  'ethereum': 'ethereum'
 }
 
 interface Country {

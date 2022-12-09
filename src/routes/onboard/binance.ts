@@ -16,7 +16,7 @@ const TOKENS_TO_MAP: Record<string, string> = {
 
 const reverseTokenMappings: Record<string, string> = {};
 
-const allowedNetworks = new Set(['BSC', 'OPTIMISM', 'ARBITRUM', 'CELO', 'AVAX', 'FTM', 'MATIC', 'ONE', 'MOVR', 'GLMR', 'ROSE']);
+const allowedNetworks = new Set(['BSC', 'OPTIMISM', 'ARBITRUM', 'CELO', 'AVAX', 'FTM', 'MATIC', 'ONE', 'MOVR', 'GLMR', 'ROSE', 'ETH']);
 
 const chainMapping: Record<string, string> = {
   'BSC': 'bsc',
@@ -29,7 +29,8 @@ const chainMapping: Record<string, string> = {
   'ONE': 'harmony',
   'MOVR': 'moonriver',
   'GLMR': 'moonbeam',
-  'ROSE': 'oasis'
+  'ROSE': 'oasis',
+  'ETH': 'ethereum'
 }
 interface CryptoNetworkResponse {
   cryptoCurrency: string,
