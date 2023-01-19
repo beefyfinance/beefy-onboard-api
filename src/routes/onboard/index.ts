@@ -89,10 +89,6 @@ const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
 
   });
 
-  fastify.get('/a',async function (request, reply) {
-
-    return await getCountryFromIPMM('181.85.53.192')
-  });
 }
 
 
