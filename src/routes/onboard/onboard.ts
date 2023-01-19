@@ -1,4 +1,4 @@
-import { getCountryFromIP } from "./ipService"
+import { getCountryFromIP, getCountryFromIPMM } from "./ipService"
 import { checkIpAddress, getBinanceConnectRedirect, getData, getQuote } from "./binance"
 import { getCountryCurrency, getTQuote, getTransakData, getTransakRedirectUrl, isCountryAllowed } from "./transakService";
 
@@ -10,7 +10,7 @@ interface OnboardResponse {
 
 export const onboardStart = async (ipAddress: string) => {
   const start = Date.now();
-  let countryCode = await getCountryFromIP(ipAddress);
+  let countryCode = await getCountryFromIPMM(ipAddress);
 
   console.log(`> ${ipAddress} connecting from ${countryCode}`);
 

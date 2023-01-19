@@ -1,5 +1,5 @@
 import { FastifyPluginAsync } from "fastify"
-import { getCountryFromIP } from "./ipService"
+import { getCountryFromIP, getCountryFromIPMM } from "./ipService"
 import { getQuotes, getRedirect, onboardStart } from './onboard'
 import { sign } from "./protocol"
 
@@ -59,10 +59,8 @@ const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     return await onboardStart(request.ip);
   })
 
-
-
   fastify.post('/quote', { schema: { body: bodyJsonSchema } }, async function (request, reply) {
-    let countryCode = await getCountryFromIP(request.ip);
+    let countryCode = await getCountryFromIPMM(request.ip);
 
     const body: any = request.body;
     try {
@@ -91,6 +89,10 @@ const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
 
   });
 
+  fastify.get('/a',async function (request, reply) {
+
+    return await getCountryFromIPMM('181.85.53.192')
+  });
 }
 
 
