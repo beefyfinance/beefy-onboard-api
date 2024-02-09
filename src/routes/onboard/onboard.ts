@@ -50,7 +50,7 @@ export const getQuotes = async (providers: string[], network: string, cryptoCurr
   let response: any = {};
   if (providers.includes('transak')) {
     console.log('fetching transak');
-    // response.transak = await getTQuote(network, cryptoCurrency, fiatCurrency, amountType, amount, countryCode);
+    response.transak = await getTQuote(network, cryptoCurrency, fiatCurrency, amountType, amount, countryCode);
   }
   if (providers.includes('mtpelerin')) {
     console.log('fetching mtpelerin');
