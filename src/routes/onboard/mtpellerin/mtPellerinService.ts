@@ -118,6 +118,7 @@ export const getPQuote = async(network: string, cryptoCurrency: string, fiatCurr
     isCardPayment: true,
   }
   try {
+    console.log(JSON.stringify(body));
 
     const resp = await axios.post('https://api.mtpelerin.com/currency_rates/convert', body);
     console.log(resp.data);
@@ -130,6 +131,7 @@ export const getPQuote = async(network: string, cryptoCurrency: string, fiatCurr
   ]
   } catch (err:any) {
     console.log('Failed to fetch mt pelerin quote:' + err.message);
+    // console.log(err)
     return [];
   } 
 }
@@ -140,7 +142,7 @@ export const getMtPellerinUrl = (cryptoCurrency: string, fiatCurrency: string, n
   return `https://widget.mtpelerin.com/?` +
   `type=web` +
   `&lang=en` + 
-  `&tab=sell` + 
+  `&tab=buy` + 
   `&ssc=${cryptoCurrency}` +
   `&sdc=${fiatCurrency}` +
   `&net=${reverseNetworkMapping}`+ 

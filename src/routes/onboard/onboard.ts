@@ -47,7 +47,7 @@ export const onboardStart = async (ipAddress: string) => {
 
 
 export const getQuotes = async (providers: string[], network: string, cryptoCurrency: string, fiatCurrency: string, amountType: string, amount: number, countryCode: string) => {
-  let response: any = {};
+  const response: any = {};
   if (providers.includes('transak')) {
     console.log('fetching transak');
     response.transak = await getTQuote(network, cryptoCurrency, fiatCurrency, amountType, amount, countryCode);
