@@ -143,8 +143,9 @@ export const getMtPellerinUrl = (cryptoCurrency: string, fiatCurrency: string, n
   `type=web` +
   `&lang=en` + 
   `&tab=buy` + 
-  `&ssc=${cryptoCurrency}` +
-  `&sdc=${fiatCurrency}` +
+  `&bdc=${cryptoCurrency}` +
+  `&bsc=${fiatCurrency}` +
+  `&bsa=${amount}` +
   `&net=${reverseNetworkMapping}`+ 
   `&_ctkn=c72db4b7-aa60-418c-8d31-7577494afc31`;
 }
