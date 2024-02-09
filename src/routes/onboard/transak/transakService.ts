@@ -242,28 +242,22 @@ const fetchData = async () => {
     .filter((token: string) => TOKENS_TO_MAP.hasOwnProperty(token))
     .forEach((token: string) => {
       let mappedName = TOKENS_TO_MAP[token];
-      console.log('should map ' + token + ' to ' + TOKENS_TO_MAP[token]);
-      console.log(cryptoData[token].networks)
 
       let tokenDataToMap = cryptoData[token];
 
       if (!cryptoData[mappedName]) {
-        console.log('mapped token doesnt exist, creating');
         cryptoData[mappedName] = {
           networks: {}
         }
       } else {
-        console.log('mapped token exists');
       }
       let networksToAdd = Object.keys(tokenDataToMap.networks).filter(network => !cryptoData[mappedName].networks[network]);
-      console.log('Adding chains ' + networksToAdd);
       networksToAdd.forEach(networkKey => {
         cryptoData[mappedName].networks[networkKey] = tokenDataToMap.networks[networkKey];
         reverseTokenMappings[mappedName+'-'+networkKey] = token;
       })
       delete cryptoData[token];
     })
-  console.log(allChains)
   let end = Date.now();
   console.log('> Transak initialized in ' + ((end - start) / 1000).toFixed(2) + 's');
 }
@@ -351,7 +345,7 @@ export const isCountryAllowed = (countryCode: string) => {
 
 const transakQuote = async (network: string, cryptoCurrency: string, fiatCurrency: string, paymentMethod: string, amountType: string, amount: number) => {
 
-  let key = amountType === "fiat" ? "fiatAmount" : "cryptoAmount";
+  const key = amountType === "fiat" ? "fiatAmount" : "cryptoAmount";
   const params = {
     cryptoCurrency,
     fiatCurrency,
@@ -362,14 +356,10 @@ const transakQuote = async (network: string, cryptoCurrency: string, fiatCurrenc
     [key]: amount
   }
 
-  console.log(params)
-
   const resp = await axios.get(API_URL + "/currencies/price", { params });
 
-  let quoteData = resp.data.response;
+  const quoteData = resp.data.response;
 
-  console.log(paymentMethod)
-  console.log(resp.data.response)
   return {
     quote: 1 / (quoteData.conversionPrice),
     paymentMethod,
@@ -385,19 +375,12 @@ interface Quote {
 
 export const getTQuote = async (network: string, cryptoCurrency: string, fiatCurrency: string, amountType: string, amount: number, countryCode: string) => {
 
-  console.log("countrycode " + countryCode);
   let paymentMethods: string[] = fiatPayments[fiatCurrency].filter(payment => payment.supportingCountries?.includes(countryCode)).map(payment => payment.paymentMethod);
 
   let reverseMappedCryptoCurrency = reverseTokenMappings[`${cryptoCurrency}-${network}`] ?? cryptoCurrency;
 
-  console.log(cryptoCurrency)
-  console.log(reverseMappedCryptoCurrency)
-
-  console.log(fiatPayments[fiatCurrency])
 
   let networkName: string = Object.entries(chainMapping).find(chain => chain[1] === network)?.[0] ?? "";
-  console.log('using transak chain ')
-  console.log(networkName)
 
   let promises = [];
 

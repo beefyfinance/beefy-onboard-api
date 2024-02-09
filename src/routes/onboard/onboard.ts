@@ -1,6 +1,6 @@
-import { getCountryFromIP, getCountryFromIPMM } from "./ipService"
-import { checkIpAddress, getBinanceConnectRedirect, getData, getQuote } from "./binance"
-import { getCountryCurrency, getTQuote, getTransakData, getTransakRedirectUrl, isCountryAllowed } from "./transakService";
+import { getCountryFromIPMM } from "./ipService"
+import { getMtPelerinData, getMtPellerinUrl, getPQuote, isCountryAllowedPellerin } from "./mtpellerin/mtPellerinService";
+import { getCountryCurrency, getTQuote, getTransakData, getTransakRedirectUrl, isCountryAllowed } from "./transak/transakService";
 
 interface OnboardResponse {
   countryCode: string,
@@ -24,17 +24,18 @@ export const onboardStart = async (ipAddress: string) => {
     providers: {}
   };
 
-  let checkBinanceIp = await checkIpAddress(ipAddress);
-  console.log(`> Check binance IP test: ${checkBinanceIp}`)
-
-  if (checkBinanceIp) { //Binance supported, add provider data
-    let binanceData = getData();
-    if (Object.keys(binanceData).length > 0) resp.providers.binance = binanceData;
-  }
 
   if (isCountryAllowed(countryCode)) { //Transak supported, add provider data
     let transakData = getTransakData(countryCode);
     if (Object.keys(transakData).length > 0) resp.providers.transak = transakData;
+  }
+  if (isCountryAllowedPellerin(countryCode)) {
+    console.log("mtp country is allowed")
+    let pelerinData = getMtPelerinData();
+    if (Object.keys(pelerinData).length > 0) resp.providers.mtpelerin = pelerinData;
+    console.log(resp.providers.mtpelerin)
+  } else {
+    console.log("country is not allowed")
   }
 
   const end = Date.now();
@@ -49,11 +50,11 @@ export const getQuotes = async (providers: string[], network: string, cryptoCurr
   let response: any = {};
   if (providers.includes('transak')) {
     console.log('fetching transak');
-    response.transak = await getTQuote(network, cryptoCurrency, fiatCurrency, amountType, amount, countryCode);
+    // response.transak = await getTQuote(network, cryptoCurrency, fiatCurrency, amountType, amount, countryCode);
   }
-  if (providers.includes('binance')) {
-    console.log('fetching binance');
-    response.binance = await getQuote(network, cryptoCurrency, fiatCurrency, amountType, amount);
+  if (providers.includes('mtpelerin')) {
+    console.log('fetching mtpelerin');
+    response.mtpelerin = await getPQuote(network, cryptoCurrency, fiatCurrency, amount);
   }
 
   return response;
@@ -65,10 +66,6 @@ export const getFake = async (providers: string[], network: string, cryptoCurren
     console.log('fetching transak');
     response.transak = await getTQuote("ETH", "ETH", "GBP", "fiat", 500, "GB");
   }
-  if (providers.includes('binance')) {
-    console.log('fetching binance');
-    response.binance = await getQuote("BSC", "BUSD", "USD", "fiat", 500);
-  }
 
   return response;
 }
@@ -76,7 +73,9 @@ export const getFake = async (providers: string[], network: string, cryptoCurren
 export const getRedirect = (provider: string, network: string, cryptoCurrency: string, fiatCurrency: string, amountType: string, amount: number, address: string, paymentMethod: string) => {
   if (provider === 'transak') {
     return getTransakRedirectUrl(cryptoCurrency, fiatCurrency, network, paymentMethod, amountType, amount, address);
-  } else if (provider === 'binance') {
-    return getBinanceConnectRedirect(cryptoCurrency, fiatCurrency, network, amount, address);
+  } else if (provider === 'mtpelerin') {
+    const redirect = getMtPellerinUrl(cryptoCurrency, fiatCurrency, network, amount, address);
+    console.log(redirect)
+    return redirect;
   }
 }

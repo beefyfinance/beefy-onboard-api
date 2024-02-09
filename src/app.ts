@@ -1,7 +1,7 @@
-import { join } from 'path';
 import AutoLoad, {AutoloadPluginOptions} from '@fastify/autoload';
 import Fastify, { FastifyPluginAsync } from 'fastify';
 import cors from '@fastify/cors';
+import root from './routes/root';
 require('dotenv').config();
 
 export type AppOptions = {
@@ -17,26 +17,9 @@ const startApp: FastifyPluginAsync<AppOptions> = async (
     fastify,
     opts
 ): Promise<void> => {
-  // Place here your custom code!
+  fastify.register(cors);
 
-  // Do not touch the following lines
-
-  void fastify.register(cors);
-
-  // This loads all plugins defined in plugins
-  // those should be support plugins that are reused
-  // through your application
-  void fastify.register(AutoLoad, {
-    dir: join(__dirname, 'plugins'),
-    options: opts
-  })
-
-  // This loads all plugins defined in routes
-  // define your routes in one of these
-  void fastify.register(AutoLoad, {
-    dir: join(__dirname, 'routes'),
-    options: opts
-  })
+  fastify.register(root, '/');
 
   void fastify.listen({
     port: Number(process.env.PORT) || 3000,
