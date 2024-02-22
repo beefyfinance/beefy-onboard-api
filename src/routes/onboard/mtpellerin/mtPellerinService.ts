@@ -195,7 +195,7 @@ export const getPQuote = async (
     return [
       {
         quote: amount / parseFloat(resp.data.destAmount),
-        paymentMethod: "card",
+        paymentMethod: BANK_ENABLED_FIAT_CURRENCIES.has(fiatCurrency) ? 'bank_transfer' : 'card',
         fee:
           parseFloat(resp.data.fees.networkFee || 0) +
           (parseFloat(resp.data.fees?.fixFee || 0) * amount / 100),
