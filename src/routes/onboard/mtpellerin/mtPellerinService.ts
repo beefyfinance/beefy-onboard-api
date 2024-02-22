@@ -41,6 +41,48 @@ const SUPPORTED_FIAT_CURRENCIES = new Set([
   "ZAR",
 ]);
 
+const BANK_ENABLED_FIAT_CURRENCIES = new Set([
+  "CHF", "DKK", "EUR", "GBP", "HKD", "JPY", "NOK", "NZD", "SEK", "SGD", "USD", "ZAR"
+])
+
+//make an set with the following words agEUR, AVAX, BNB, BTC, BTCB, crvUSD, DAI, ETH, EURL, EURC, EUROe, EURS, EURT, FRAX, GHO, jCHF, jEUR, LUSD, MAI, MATIC, RBTC, RDOC, RIF, sat, tzBTC, USDC, USDC.e, USDRIF, USDT, WBTC, WETH, XCHF, XDAI, XTZ
+const SUPPORTED_CRYPTO_CURRENCIES = new Set([
+  "agEUR",
+  "AVAX",
+  "BNB",
+  "BTC",
+  "BTCB",
+  "crvUSD",
+  "DAI",
+  "ETH",
+  "EURL",
+  "EURC",
+  "EUROe",
+  "EURS",
+  "EURT",
+  "FRAX",
+  "GHO",
+  "jCHF",
+  "jEUR",
+  "LUSD",
+  "MAI",
+  "MATIC",
+  "RBTC",
+  "RDOC",
+  "RIF",
+  "sat",
+  "tzBTC",
+  "USDC",
+  "USDC.e",
+  "USDRIF",
+  "USDT",
+  "WBTC",
+  "WETH",
+  "XCHF",
+  "XDAI",
+  "XTZ",
+]);
+
 const tokenToInteralIdMapping: Record<string, string> = {};
 
 interface CryptoDetail {
@@ -93,7 +135,8 @@ const loadTokens = async () => {
   for (const [id, token] of Object.entries(tokens) as any) {
     if (
       !token.network ||
-      SUPPORTED_NETWORK_MAPPING[token.network] === undefined
+      SUPPORTED_NETWORK_MAPPING[token.network] === undefined ||
+      !SUPPORTED_CRYPTO_CURRENCIES.has(token.symbol)
     )
       continue;
     tokenToInteralIdMapping[token.symbol] = id;
@@ -139,7 +182,7 @@ export const getPQuote = async (
     sourceAmount: amount,
     destCurrency: cryptoCurrency,
     destNetwork: reverseNetworkMapping,
-    isCardPayment: true,
+    isCardPayment: BANK_ENABLED_FIAT_CURRENCIES.has(fiatCurrency) ? false : true,
   };
   try {
     console.log(JSON.stringify(body));
@@ -176,8 +219,7 @@ export const getMtPellerinUrl = (
     Object.entries(SUPPORTED_NETWORK_MAPPING).map(([k, v]) => [v, k])
   )[network];
   if (!reverseNetworkMapping) throw new Error("Network not supported");
-  return (
-    `https://widget.mtpelerin.com/?` +
+  const url = `https://widget.mtpelerin.com/?` +
     `type=web` +
     `&lang=en` +
     `&tab=buy` +
@@ -188,7 +230,8 @@ export const getMtPellerinUrl = (
     `&bsa=${amount}` +
     `&net=${reverseNetworkMapping}` +
     `&_ctkn=c72db4b7-aa60-418c-8d31-7577494afc31`
-  );
+  
+  return BANK_ENABLED_FIAT_CURRENCIES.has(fiatCurrency) ? url : url + `&pm=bank_transfer`;
 };
 
 initializeMtPellerinService();
