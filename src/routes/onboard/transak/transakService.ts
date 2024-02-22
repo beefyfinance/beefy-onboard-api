@@ -30,7 +30,6 @@ const allowedNetworks: Set<string> = new Set([
   'bsc',
   'avaxcchain',
   'fantom',
-  'celo',
   'moonriver',
   'ethereum'
 ]);
@@ -42,7 +41,6 @@ const chainMapping: Record<string, string> = {
   'bsc': 'bsc',
   'avaxcchain': 'avax',
   'fantom': 'fantom',
-  'celo': 'celo',
   'moonriver': 'moonriver',
   'ethereum': 'ethereum'
 }
