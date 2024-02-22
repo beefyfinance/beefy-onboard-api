@@ -229,7 +229,8 @@ export const getMtPellerinUrl = (
     `&bsc=${fiatCurrency}` +
     `&bsa=${amount}` +
     `&net=${reverseNetworkMapping}` +
-    `&_ctkn=c72db4b7-aa60-418c-8d31-7577494afc31`
+    `&_ctkn=c72db4b7-aa60-418c-8d31-7577494afc31` + 
+    `&rfr=beefy`;
   
   return BANK_ENABLED_FIAT_CURRENCIES.has(fiatCurrency) ? url : url + `&pm=card`;
 };
