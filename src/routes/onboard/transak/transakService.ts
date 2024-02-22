@@ -19,6 +19,8 @@ const TOKENS_TO_MAP: Record<string, string> = {
   'WBTC': 'BTC'
 }
 
+const BLOCKED_TOKENS: Set<string> = new Set(['BIFI'])
+
 const reverseTokenMappings: Record<string, string> = {};
 
 const allowedNetworks: Set<string> = new Set([
@@ -220,6 +222,8 @@ const fetchData = async () => {
 
   const allChains = new Set();
   cryptoCurrencies?.forEach(currency => {
+    if (BLOCKED_TOKENS.has(currency.symbol)) return;
+    
     if (!cryptoData.hasOwnProperty(currency.symbol)) {
       cryptoData[currency.symbol] = {
         networks: {}
@@ -236,7 +240,6 @@ const fetchData = async () => {
       unsupportedPayments: currency.network.fiatCurrenciesNotSupported
     })
   })
-  console.log('Transak chains')
   
   Object.keys(cryptoData)
     .filter((token: string) => TOKENS_TO_MAP.hasOwnProperty(token))
