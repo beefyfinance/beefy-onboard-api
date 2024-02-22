@@ -231,7 +231,7 @@ export const getMtPellerinUrl = (
     `&net=${reverseNetworkMapping}` +
     `&_ctkn=c72db4b7-aa60-418c-8d31-7577494afc31`
   
-  return BANK_ENABLED_FIAT_CURRENCIES.has(fiatCurrency) ? url : url + `&pm=bank_transfer`;
+  return BANK_ENABLED_FIAT_CURRENCIES.has(fiatCurrency) ? url : url + `&pm=card`;
 };
 
 initializeMtPellerinService();
