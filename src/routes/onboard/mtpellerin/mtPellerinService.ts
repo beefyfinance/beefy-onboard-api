@@ -198,7 +198,7 @@ export const getPQuote = async (
         paymentMethod: "card",
         fee:
           parseFloat(resp.data.fees.networkFee || 0) +
-          parseFloat(resp.data.fees?.fixFee || 0),
+          (parseFloat(resp.data.fees?.fixFee || 0) * amount / 100),
       },
     ];
   } catch (err: any) {
