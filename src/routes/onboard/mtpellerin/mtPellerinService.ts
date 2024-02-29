@@ -224,7 +224,6 @@ export const getMtPellerinUrl = (
     `&lang=en` +
     `&tab=buy` +
     `&mode=dark` +
-    // `&pm=card` +
     `&bdc=${cryptoCurrency}` +
     `&bsc=${fiatCurrency}` +
     `&bsa=${amount}` +
