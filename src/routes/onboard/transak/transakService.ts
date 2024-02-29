@@ -384,6 +384,8 @@ export const getTQuote = async (network: string, cryptoCurrency: string, fiatCur
   let networkName: string = Object.entries(chainMapping).find(chain => chain[1] === network)?.[0] ?? "";
 
   let promises = [];
+  console.log('payment methods')
+  console.log(paymentMethods);
 
   for (const method of paymentMethods) {
     promises.push(transakQuote(networkName, reverseMappedCryptoCurrency, fiatCurrency, method, amountType, amount));
@@ -393,6 +395,7 @@ export const getTQuote = async (network: string, cryptoCurrency: string, fiatCur
 
   let quotes: Quote[] = [];
   quoteResults.forEach((res: PromiseSettledResult<Quote>) => {
+    console.log(res)
     if (res.status === 'fulfilled') {
       quotes.push(res.value);
     } else {
